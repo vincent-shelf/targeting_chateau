@@ -5,13 +5,14 @@ BASE_URL_CATEGORY = [
     "France-4-achat-vente-chateau-haras-domaine-demeure-de-prestige-de-luxe-a-vendre-france"
 ]
 
-#class ChateauxPourTous(EngineModel):
-class ChateauxPourTous():
+
+class ChateauxPourTous(EngineModel):
 
     MIN_TIME_BEFORE_CALL = 2
     VERBOSITY = 1
     BASE_URL = "http://www.chateauxpourtous-classique.fr"
 
+    @override
     def get_catalog_page_url(self, target=BASE_URL_CATEGORY[0], nb=1):
         return f"{target}-page{nb}.php" if nb>1 else f"{target}.php"
 

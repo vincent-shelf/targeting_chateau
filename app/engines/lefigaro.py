@@ -1,5 +1,7 @@
+from app.engines.engine_model import BaseEngine
 
-class LeFigaroProprietes:
+
+class LeFigaroProprietes(BaseEngine):
 
     MIN_TIME_BEFORE_CALL = 2
     VERBOSITY = 1
