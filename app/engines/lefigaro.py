@@ -6,6 +6,7 @@ class LeFigaroProprietes(BaseEngine):
     MIN_TIME_BEFORE_CALL = 2
     VERBOSITY = 1
     BASE_URL = "https://proprietes.lefigaro.fr/"
+    headers = ["ad_url", "link_ref", "price", "description", "characteritics", "ref_advertiser", "location"]
 
     def get_catalog_page_url(self, nb=1):
         return f"{self.base_url}/annonces/chateau/?page={nb}"

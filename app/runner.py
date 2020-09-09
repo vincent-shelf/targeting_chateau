@@ -5,4 +5,8 @@ engine = ChateauxPourTous()
 
 crawler = ChateauCrawler(engine=engine)
 
-dataset = crawler.crawl()
+crawler.crawl()
+
+print(crawler.show())
+
+crawler.export("../datasets/ChateauxPourTous.csv")

@@ -1,3 +1,5 @@
+from app.engines.engine_model import BaseEngine
+
 BASE_URL_CATEGORY = [
     "France-1-achat-vente-maison-bourgeoise-de-charme-ancien-presbytere-chapelle-pas-chere-a-restaurer-a-vendre-france",
     "France-2-achat-vente-belle-demeure-ancienne-de-caractere-de-charme-a-vendre-france",
@@ -6,13 +8,13 @@ BASE_URL_CATEGORY = [
 ]
 
 
-class ChateauxPourTous(EngineModel):
+class ChateauxPourTous(BaseEngine):
 
     MIN_TIME_BEFORE_CALL = 2
     VERBOSITY = 1
     BASE_URL = "http://www.chateauxpourtous-classique.fr"
+    headers = ["ad_url", "title", "price", "description", "img_list"]
 
-    @override
     def get_catalog_page_url(self, target=BASE_URL_CATEGORY[0], nb=1):
         return f"{target}-page{nb}.php" if nb>1 else f"{target}.php"
 
@@ -30,8 +32,9 @@ class ChateauxPourTous(EngineModel):
     def extract_adlist_from_catalog_page(self, page_url, page):
         try:
             ad_list = page.findAll("div", {"class": "absolubiens"})
-            return [(page_url, ad.a['href'].replace(self.BASE_URL, "")) for ad in ad_list]
-        except:
+            refined_ad_list = [(page_url, ad.a['href'].replace(self.BASE_URL, "")) for ad in ad_list]
+            return [ad for ad in refined_ad_list if not ad[1].replace(".php", "").split("-page")[0] in BASE_URL_CATEGORY]
+        except Exception as e:
             print(f"ERROR while processing catalog page: {page_url}")
 
     def process_ad_page(self, ad_url, ad_page):

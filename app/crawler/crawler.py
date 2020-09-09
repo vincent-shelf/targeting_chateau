@@ -1,8 +1,11 @@
 import requests, time, datetime
 from bs4 import BeautifulSoup
+import pandas as pd
 
 
 class ChateauCrawler:
+
+    result_df = []
 
     def __init__(self, engine):
         self.engine = engine
@@ -31,11 +34,28 @@ class ChateauCrawler:
             return self.engine.process_ad_page(ad_url, ad_page)
         except Exception as e:
             print(f"Processing failed for ad page call {ad_url}")
+            return []
 
     def crawl(self):
+        print(f"Starting crawler at {str(datetime.datetime.now())}")
         complete_ad_list = self.extract_complete_ad_list()
-        crawl = []
+
         print(f"Starting collecting all {len(complete_ad_list)} ads at {str(datetime.datetime.now())}")
+        crawl = []
         for ad_url in complete_ad_list:
-            crawl += self.collect_ad(ad_url)
-        return crawl
+            crawl += [self.collect_ad(ad_url[1])]
+
+        print(f"Done collecting all {len(complete_ad_list)} ads at {str(datetime.datetime.now())}")
+        self.result_df = pd.DataFrame(crawl, columns=self.engine.headers)
+
+    def show(self):
+        print(self.result_df)
+
+
+    def export(self, target_path):
+        print(f"Exporting file started at {str(datetime.datetime.now())}")
+        self.result_df.to_csv(target_path, index=False)
+        print(f"Exporting file finished at {str(datetime.datetime.now())}")
+
+
+
