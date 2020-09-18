@@ -9,7 +9,7 @@ class LeFigaroProprietes(BaseEngine):
     headers = ["ad_url", "link_ref", "price", "description", "characteritics", "ref_advertiser", "location"]
 
     def get_catalog_page_url(self, nb=1):
-        return f"{self.base_url}/annonces/chateau/?page={nb}"
+        return f"annonces/chateau/?page={nb}"
 
     def list_catalog_target_pages(self, proc):
         catalog_search_domain =[]
@@ -22,7 +22,7 @@ class LeFigaroProprietes(BaseEngine):
     def extract_adlist_from_catalog_page(self, page_url, page):
         try:
             ad_list = page.findAll("div", {"class": "container-itemlist-inline js-itemlist-inline"})
-            return [(page_url, ad.a['href'].replace(self.BASE_URL, "")) for ad in ad_list]
+            return [(page_url, ad.a['href'].replace(self.BASE_URL, "")[1:]) for ad in ad_list]
         except:
             print(f"ERROR while processing catalog page: {page_url}")
 

@@ -1,6 +1,7 @@
 import requests, time, datetime
 from bs4 import BeautifulSoup
 import pandas as pd
+import sqlite3
 
 
 class ChateauCrawler:
@@ -33,7 +34,7 @@ class ChateauCrawler:
             ad_page = self.process_page(ad_url)
             return self.engine.process_ad_page(ad_url, ad_page)
         except Exception as e:
-            print(f"Processing failed for ad page call {ad_url}")
+            print(f"Processing failed for ad page call {ad_url} with error {str(e)}")
             return []
 
     def crawl(self):
@@ -52,10 +53,18 @@ class ChateauCrawler:
         print(self.result_df)
 
 
-    def export(self, target_path):
+    def export_to_csv(self, target_path):
         print(f"Exporting file started at {str(datetime.datetime.now())}")
         self.result_df.to_csv(target_path, index=False)
         print(f"Exporting file finished at {str(datetime.datetime.now())}")
+
+    def export(self, target_db, target_table):
+        con = sqlite3.connect(target_db)
+        print(f"Exporting file started at {str(datetime.datetime.now())}")
+        self.result_df.to_sql(target_table, con, if_exists="replace")
+        con.close()
+        print(f"Exporting file finished at {str(datetime.datetime.now())}")
+
 
 
 
