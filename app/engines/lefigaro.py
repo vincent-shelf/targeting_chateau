@@ -1,4 +1,5 @@
-from app.engines.engine_model import BaseEngine
+import json
+from .engine_model import BaseEngine
 
 
 class LeFigaroProprietes(BaseEngine):
@@ -22,33 +23,43 @@ class LeFigaroProprietes(BaseEngine):
     def extract_adlist_from_catalog_page(self, page_url, page):
         try:
             ad_list = page.findAll("div", {"class": "container-itemlist-inline js-itemlist-inline"})
-            return [(page_url, ad.a['href'].replace(self.BASE_URL, "")[1:]) for ad in ad_list]
+            return [(page_url, ad['data-href'].replace(self.BASE_URL, "")[1:]) for ad in ad_list]
         except:
             print(f"ERROR while processing catalog page: {page_url}")
 
     def process_ad_page(self, ad_url, ad_page):
+        
+        payload = {}
 
-        # link ref
-        link_ref = ad_page.find("link", {"rel": "canonical"})
+        raw_data = ad_page.find("div", {"id": "js-data"})
+        payload['id'] = raw_data['data-id']
+        payload['agency_id'] = raw_data['data-agency-id']
+        payload['address'] = {
+            'region': raw_data['data-tc-region'],
+            'departement': raw_data['data-tc-departement'],
+            'ville': raw_data['data-tc-ville'],
+            'code': raw_data['data-tc-ville-cp'],
+            'geoloc': raw_data['data-tc-geoloc'],
+            'localisation': raw_data['data-tc-localisation']
+        }
+        payload['transaction'] = raw_data['data-tc-transaction']
+        payload['date_mel'] = raw_data['data-tc-date-mel']
 
-        # price
-        price = ad_page.find("span", {"class": "nb-price"})
+        raw_data2 = ad_page.findAll("script", {"type": "application/ld+json"})
+        raw_data2 = [json.loads(t.get_text()) for t in raw_data2]
+        raw_data2 = [t for t in raw_data2 if t["@type"]=="Offer"][0]
+        payload['url'] = raw_data2['url']
+        payload['image'] = raw_data2['image']
+        payload['description'] = raw_data2['description']
+        payload['priceCurrency'] = raw_data2['priceCurrency']
+        payload['price'] = raw_data2['price']
+        payload['seller'] = raw_data2['seller']
 
-        # stats
-        # TODO detail
-        for t in ad_page[0].findAll("span", {"class": "nb"}):
-            print(t.get_text())
+        specs = {}
+        for t in ad_page.find("ul", {"class": "specs-list"}).findAll("li"):
+            key = t.find("span", {"class": "specs"}).get_text()
+            value = t.find("span", {"class": "specs__values"}).get_text().replace(u'\xa0', u' ')
+            specs[key] = value
+        payload['features'] = specs
 
-        # desc
-        description = ad_page.findAll("p", {"id": "js-description", "itemprop": "description"})
-
-        # caracteristiques
-        characteritics = ad_page.findAll("div", {"class": "caracteristiques"})[0].findAll("p", {"class": "h2-like"})
-
-        #ref annonceur
-        ref_advertiser = ad_page.findAll("p", {"class": "ref-annonce"})
-
-        # geoloc
-        location = ad_page.findAll("span", {"class": "name", "itemprop": "addressLocality"})[0].get_text()
-
-        return [ad_url, link_ref, price, description, characteritics, ref_advertiser, location]
+        return payload

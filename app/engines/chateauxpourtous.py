@@ -1,4 +1,4 @@
-from app.engines.engine_model import BaseEngine
+from .engine_model import BaseEngine
 
 BASE_URL_CATEGORY = [
     "France-1-achat-vente-maison-bourgeoise-de-charme-ancien-presbytere-chapelle-pas-chere-a-restaurer-a-vendre-france",

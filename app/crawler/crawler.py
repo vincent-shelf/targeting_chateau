@@ -26,12 +26,14 @@ class ChateauCrawler:
         ad_list = []
         for catalog_page in catalog_search_domain:
             ad_list += self.engine.extract_adlist_from_catalog_page(catalog_page, self.process_page(catalog_page))
+        
         print(f"Found {len(ad_list)} ads to process.")
         return ad_list
 
     def collect_ad(self, ad_url):
         try:
             ad_page = self.process_page(ad_url)
+            # print(f"Page loaded successfully")
             return self.engine.process_ad_page(ad_url, ad_page)
         except Exception as e:
             print(f"Processing failed for ad page call {ad_url} with error {str(e)}")
@@ -47,7 +49,10 @@ class ChateauCrawler:
             crawl += [self.collect_ad(ad_url[1])]
 
         print(f"Done collecting all {len(complete_ad_list)} ads at {str(datetime.datetime.now())}")
-        self.result_df = pd.DataFrame(crawl, columns=self.engine.headers)
+        # self.result_df = pd.DataFrame(crawl, columns=self.engine.headers)
+        print(crawl)
+        self.result_df = pd.json_normalize(crawl)
+        print(self.result_df )
 
     def show(self):
         print(self.result_df)

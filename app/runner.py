@@ -1,19 +1,21 @@
 import datetime
-from app.crawler.crawler import ChateauCrawler
-from app.engines.chateauxpourtous import ChateauxPourTous
-from app.engines.lefigaro import LeFigaroProprietes
+from crawler.crawler import ChateauCrawler
+from engines.chateauxpourtous import ChateauxPourTous
+from engines.lefigaro import LeFigaroProprietes
 
 CONFIGS = [
     {
         "name": "LeFigaroProprietes",
         "engine": LeFigaroProprietes,
         "database": "../datasets/chateaux_v1.sqlite",
+        "csv": "../datasets/chateaux_v1.csv",
         "target_table": "LeFigaroProprietes",
     },
     {
         "name": "ChateauxPourTous",
         "engine": ChateauxPourTous,
         "database": "../datasets/chateaux_v1.sqlite",
+        "csv": "../datasets/chateaux_v1.csv",
         "target_table": "ChateauxPourTous",
     }
 ]
@@ -27,5 +29,6 @@ for eng in CONFIGS:
     crawler.crawl()
     print(f"Exporting results of {eng['name']} at {str(datetime.datetime.now())}")
     crawler.export(target_db=eng["database"], target_table=eng["target_table"])
+    crawler.export_to_csv(target_path=eng['csv'])
     print(f"Finishing {eng['name']} at {str(datetime.datetime.now())} after {str(datetime.datetime.now()-start_time)}")
-
+    break
